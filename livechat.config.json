@@ -3,6 +3,11 @@
     "name": "SPAM detector",
     "product": "livechat",
     "blocks": {
+        "authorization": {
+            "clientId": "3013ae66db12c66ea349abeebee43911",
+            "type": "javascript_app",
+            "redirectUri": "http://localhost"
+        },
         "repository": {
             "provider": "github",
             "target": "browser",
