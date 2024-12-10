@@ -11,6 +11,9 @@ interface QueryParams {
 }
 
 export default async function integrationRoutes(fastify: FastifyInstance) {
+  fastify.get("/health", (req, res) => {
+    res.status(200).send("OK");
+  });
   fastify.get(
     "/hello-ws",
     { websocket: true },

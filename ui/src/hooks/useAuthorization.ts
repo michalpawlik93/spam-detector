@@ -32,5 +32,5 @@ export const useAuthorization = ({
     authorize();
   }, []);
 
-  return [accessToken];
+  return { accessToken };
 };

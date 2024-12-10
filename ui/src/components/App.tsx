@@ -6,12 +6,13 @@ import useWebSocket from "../hooks/useWebSocket";
 import MessageList from "./MessageList";
 
 const AppWithAuth = () => {
-  const [accessToken] = useAuthorization({
+  const { accessToken } = useAuthorization({
     client_id: "3013ae66db12c66ea349abeebee43911",
     account_url: "https://accounts.livechatinc.com/",
   });
 
-  const { socket, messages, spamCounters } = useWebSocket(accessToken);
+  const { socket, messages, spamCounters, isServerAvailable } =
+    useWebSocket(accessToken);
 
   if (!accessToken) {
     return <Loader size="small" />;
@@ -19,12 +20,20 @@ const AppWithAuth = () => {
 
   return (
     <div>
-      <h1>Hello there!</h1>
-      <MessageList
-        messages={messages}
-        socket={socket}
-        spamCounters={spamCounters}
-      />
+      {!isServerAvailable ? (
+        <div style={{ color: "red", marginBottom: "10px" }}>
+          Server is unavailable. Reconnecting...
+        </div>
+      ) : (
+        <>
+          <h1>Hello there!</h1>
+          <MessageList
+            messages={messages}
+            socket={socket}
+            spamCounters={spamCounters}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -3,6 +3,7 @@ import fastifyEnv from "@fastify/env";
 import config, { ConfigType } from "./config/config";
 import integrationRoutes from "./routes/integration";
 import websocket from "@fastify/websocket";
+import cors from "@fastify/cors";
 declare module "fastify" {
   interface FastifyInstance {
     config: ConfigType;
@@ -21,6 +22,9 @@ export default async function build() {
   try {
     await fastify.register(fastifyEnv, config());
     fastify.register(websocket);
+    fastify.register(cors, {
+      origin: "*",
+    });
     fastify.register(integrationRoutes, {});
     await fastify.ready();
   } catch (error) {

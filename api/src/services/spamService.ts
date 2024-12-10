@@ -9,24 +9,24 @@ export const handleIncomingEvent = (
   fastify: FastifyInstance
 ) => {
   const incomingMessage = payload?.event?.text;
+  const incomingType = payload?.event?.type;
   fastify.log.info(`Received message: ${incomingMessage}`);
-  if (incomingMessage) {
-    const isSpamMessage = isSpam(incomingMessage, spamMessages);
-    if (isSpamMessage) {
+  if (incomingMessage && incomingType === "message") {
+    const spamKey = isSpam(incomingMessage, spamMessages);
+    if (spamKey !== null) {
       const currentCount = spamMessages.get(incomingMessage) || 0;
       spamMessages.set(incomingMessage, currentCount + 1);
 
       const spamCountEvent: EventContract = {
         type: "counter",
-        id: payload.event.id,
         counter: currentCount + 1,
+        text: spamKey,
       };
 
       socket.send(JSON.stringify(spamCountEvent));
     } else {
       const incomingEvent: EventContract = {
         type: "incoming_event",
-        id: payload.event.id,
         text: payload.event.text,
       };
 
@@ -65,8 +65,8 @@ const handleSpamDetection = (
 
   const spamCountEvent: EventContract = {
     type: "counter",
-    id: "server-generated-id",
     counter: currentCount + 1,
+    text: message,
   };
 
   socket.send(JSON.stringify(spamCountEvent));
@@ -75,12 +75,11 @@ const handleSpamDetection = (
 //refactor types and change them to generics
 export type IncomingEvent = {
   text: string;
-  id: string;
+  type: string;
 };
 
 export type EventContract = {
   type: "counter" | "incoming_event";
-  id: string;
   counter?: number;
   text?: string;
 };
