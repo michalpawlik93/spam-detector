@@ -1,0 +1,13 @@
+{
+    "id": "-sq4j_4Ng",
+    "name": "SPAM detector",
+    "product": "livechat",
+    "blocks": {
+        "repository": {
+            "provider": "github",
+            "target": "browser",
+            "name": "michalpawlik93/spam-detector",
+            "branch": "main"
+        }
+    }
+}
