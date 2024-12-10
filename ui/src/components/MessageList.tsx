@@ -1,24 +1,19 @@
-import { useState } from "react";
-
 const MessageList = ({
   messages,
   socket,
+  spamCounters,
 }: {
   messages: string[];
   socket: WebSocket | null;
+  spamCounters: { [key: string]: number };
 }) => {
-  const [spamCounters, setSpamCounters] = useState<{ [key: string]: number }>(
-    {}
-  );
-
   const handleSpamClick = (message: string) => {
-    setSpamCounters((prevCounters) => ({
-      ...prevCounters,
-      [message]: (prevCounters[message] || 0) + 1,
-    }));
-
     if (socket) {
-      socket.send(`SPAM detected: ${message}`);
+      const spamMessageEvent = JSON.stringify({
+        type: "spam_detected",
+        message: message,
+      });
+      socket.send(spamMessageEvent);
     }
   };
 

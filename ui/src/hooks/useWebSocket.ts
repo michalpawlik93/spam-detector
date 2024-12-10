@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 const useWebSocket = (accessToken: string | null) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
+  const [spamCounters, setSpamCounters] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   useEffect(() => {
     if (accessToken) {
@@ -17,7 +20,15 @@ const useWebSocket = (accessToken: string | null) => {
       ws.onmessage = (event) => {
         try {
           const parsedData = JSON.parse(event.data);
-          setMessages((prevMessages) => [...prevMessages, parsedData.text]);
+
+          if (parsedData.type === "counter") {
+            setSpamCounters((prevCounters) => ({
+              ...prevCounters,
+              [parsedData.text]: parsedData.counter,
+            }));
+          } else if (parsedData.type === "incoming_event") {
+            setMessages((prevMessages) => [...prevMessages, parsedData.text]);
+          }
         } catch (error) {
           console.error("Error parsing message:", error);
         }
@@ -28,7 +39,7 @@ const useWebSocket = (accessToken: string | null) => {
       };
 
       ws.onclose = () => {
-        console.log("Connection with web socket closed");
+        console.log("Connection with WebSocket closed");
       };
 
       setSocket(ws);
@@ -38,7 +49,7 @@ const useWebSocket = (accessToken: string | null) => {
     }
   }, [accessToken]);
 
-  return { socket, messages };
+  return { socket, messages, spamCounters };
 };
 
 export default useWebSocket;

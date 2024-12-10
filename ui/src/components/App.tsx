@@ -11,7 +11,7 @@ const AppWithAuth = () => {
     account_url: "https://accounts.livechatinc.com/",
   });
 
-  const { socket, messages } = useWebSocket(accessToken);
+  const { socket, messages, spamCounters } = useWebSocket(accessToken);
 
   if (!accessToken) {
     return <Loader size="small" />;
@@ -20,7 +20,11 @@ const AppWithAuth = () => {
   return (
     <div>
       <h1>Hello there!</h1>
-      <MessageList messages={messages} socket={socket} />
+      <MessageList
+        messages={messages}
+        socket={socket}
+        spamCounters={spamCounters}
+      />
     </div>
   );
 };

@@ -1,9 +1,15 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { chatSDK } from "../utils/sdkUtils";
+import {
+  handleClientSpamDetection,
+  handleIncomingEvent,
+  IncomingEvent,
+} from "../services/spamService";
 
 interface QueryParams {
   access_token: string;
 }
+
 export default async function integrationRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/hello-ws",
@@ -24,33 +30,25 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
         chatSDK.init({
           access_token: accessToken,
         });
-        await sleep(2000); // bad look for callback or async
+        await sleep(2000); // bad workaround, look for callback or async
         fastify.log.info("Connection established.");
 
-        const handleIncomingEvent = ({
-          payload,
-        }: {
-          payload: { event: IncomingEvent };
-        }) => {
-          const incomingMessage = payload?.event?.text;
-          if (incomingMessage) {
-            const event = JSON.stringify({ text: incomingMessage });
-            fastify.log.info(event);
-            socket.send(event);
+        const spamMessages: Map<string, number> = new Map();
+        chatSDK.on(
+          "incoming_event",
+          ({ payload }: { payload: { event: IncomingEvent } }) => {
+            handleIncomingEvent(payload, spamMessages, socket, fastify);
           }
-        };
-        chatSDK.on("incoming_event", handleIncomingEvent);
+        );
 
         socket.on("message", async (message) => {
-          fastify.log.info(`Received message:${message}`);
-          // try {
-          //   const agentData = await chatSDK.getAgentDetails();
-          //   socket.send(JSON.stringify(agentData));
-          // } catch (error) {
-          //   socket.send("Error fetching agent details");
-          //   fastify.log.error("getAgentDetails error:");
-          //   fastify.log.error(error);
-          // }
+          fastify.log.info(`Received message: ${message}`);
+          handleClientSpamDetection(
+            message.toString(),
+            spamMessages,
+            socket,
+            fastify
+          );
         });
 
         socket.on("close", async () => {
@@ -63,7 +61,7 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
           }
         });
       } catch (error) {
-        fastify.log.error("Error during chatSDK destruction: ${error}");
+        fastify.log.error(`Error during chatSDK initialization: ${error}`);
         chatSDK.destroy();
         socket.close();
       }
@@ -72,6 +70,3 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-type IncomingEvent = {
-  text: string;
-};
