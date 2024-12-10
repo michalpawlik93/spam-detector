@@ -24,19 +24,33 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
         chatSDK.init({
           access_token: accessToken,
         });
-        await sleep(2000);
+        await sleep(2000); // bad look for callback or async
         fastify.log.info("Connection established.");
 
-        socket.on("message", async (message) => {
-          fastify.log.info("Received message:", message);
-          try {
-            const agentData = await chatSDK.getAgentDetails();
-            socket.send(JSON.stringify(agentData));
-          } catch (error) {
-            socket.send("Error fetching agent details");
-            fastify.log.error("getAgentDetails error:");
-            fastify.log.error(error);
+        const handleIncomingEvent = ({
+          payload,
+        }: {
+          payload: { event: IncomingEvent };
+        }) => {
+          const incomingMessage = payload?.event?.text;
+          if (incomingMessage) {
+            const event = JSON.stringify({ text: incomingMessage });
+            fastify.log.info(event);
+            socket.send(event);
           }
+        };
+        chatSDK.on("incoming_event", handleIncomingEvent);
+
+        socket.on("message", async (message) => {
+          fastify.log.info(`Received message:${message}`);
+          // try {
+          //   const agentData = await chatSDK.getAgentDetails();
+          //   socket.send(JSON.stringify(agentData));
+          // } catch (error) {
+          //   socket.send("Error fetching agent details");
+          //   fastify.log.error("getAgentDetails error:");
+          //   fastify.log.error(error);
+          // }
         });
 
         socket.on("close", async () => {
@@ -45,12 +59,11 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
             await chatSDK.destroy();
             fastify.log.info("chatSDK instance destroyed.");
           } catch (error) {
-            fastify.log.error("Error during chatSDK destruction:", error);
+            fastify.log.error(`Error during chatSDK destruction: ${error}`);
           }
         });
       } catch (error) {
-        fastify.log.error("Error initializing chatSDK:", error);
-        socket.send("Error initializing chatSDK");
+        fastify.log.error("Error during chatSDK destruction: ${error}");
         chatSDK.destroy();
         socket.close();
       }
@@ -59,3 +72,6 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+type IncomingEvent = {
+  text: string;
+};

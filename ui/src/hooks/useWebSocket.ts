@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const useWebSocket = (accessToken: string | null) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
     if (accessToken) {
@@ -15,7 +15,12 @@ const useWebSocket = (accessToken: string | null) => {
       };
 
       ws.onmessage = (event) => {
-        setMessage(event.data);
+        try {
+          const parsedData = JSON.parse(event.data);
+          setMessages((prevMessages) => [...prevMessages, parsedData.text]);
+        } catch (error) {
+          console.error("Error parsing message:", error);
+        }
       };
 
       ws.onerror = (error) => {
@@ -33,7 +38,7 @@ const useWebSocket = (accessToken: string | null) => {
     }
   }, [accessToken]);
 
-  return [socket, message];
+  return { socket, messages };
 };
 
 export default useWebSocket;
