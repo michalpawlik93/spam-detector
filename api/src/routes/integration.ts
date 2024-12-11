@@ -57,7 +57,7 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
         socket.on("close", async () => {
           fastify.log.info("Connection closed.");
           try {
-            await chatSDK.destroy();
+            await chatSDK.destroy;
             fastify.log.info("chatSDK instance destroyed.");
           } catch (error) {
             fastify.log.error(`Error during chatSDK destruction: ${error}`);
@@ -65,7 +65,7 @@ export default async function integrationRoutes(fastify: FastifyInstance) {
         });
       } catch (error) {
         fastify.log.error(`Error during chatSDK initialization: ${error}`);
-        chatSDK.destroy();
+        chatSDK.destroy;
         socket.close();
       }
     }

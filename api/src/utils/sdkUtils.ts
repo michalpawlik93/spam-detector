@@ -1,7 +1,7 @@
 // @ts-ignore
 import ChatSDK from "@livechat/chat-sdk";
 
-const chatSDKInstance = new ChatSDK({
+export const chatSDKInstance = new ChatSDK({
   debug: true,
 });
 

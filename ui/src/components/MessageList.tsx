@@ -21,13 +21,22 @@ const MessageList = ({
     <div>
       <h3>Messages:</h3>
       <ul>
-        {messages.map((msg, index) => (
-          <li key={index}>
-            <span>{msg}</span>
-            <button onClick={() => handleSpamClick(msg)}>Mark as Spam</button>
-            <span> - Spam count: {spamCounters[msg] || 0}</span>
-          </li>
-        ))}
+        {messages.map((msg, index) => {
+          const spamCount = spamCounters[msg] || 0;
+
+          return (
+            <li key={index}>
+              <span>{msg}</span>
+              <button
+                onClick={() => handleSpamClick(msg)}
+                disabled={spamCount > 0}
+              >
+                Mark as Spam
+              </button>
+              {spamCount > 0 && <span> - Spam count: {spamCount}</span>}{" "}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
