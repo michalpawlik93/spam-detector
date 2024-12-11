@@ -14,8 +14,8 @@ export const handleIncomingEvent = (
   if (incomingMessage && incomingType === "message") {
     const spamKey = isSpam(incomingMessage, spamMessages);
     if (spamKey !== null) {
-      const currentCount = spamMessages.get(incomingMessage) || 0;
-      spamMessages.set(incomingMessage, currentCount + 1);
+      const currentCount = spamMessages.get(spamKey) || 0;
+      spamMessages.set(spamKey, currentCount + 1);
 
       const spamCountEvent: EventContract = {
         type: "counter",

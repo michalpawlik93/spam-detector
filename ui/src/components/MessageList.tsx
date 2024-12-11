@@ -1,3 +1,5 @@
+import { Informations } from "./Informations";
+
 const MessageList = ({
   messages,
   socket,
@@ -19,20 +21,9 @@ const MessageList = ({
 
   return (
     <div className="p-4 bg-white shadow-lg rounded-lg mt-4">
-      <div className="bg-orange-400 text-white p-3 rounded-lg mb-4">
-        <p className="text-sm font-semibold">
-          The current version of the software only supports active messages.
-          Archived messages are not retrieved.
-        </p>
-      </div>
-      <div className="bg-blue-400 text-white p-3 rounded-lg mb-4">
-        <p className="text-sm font-semibold">
-          Start a chat conversation to view the first messages.
-        </p>
-      </div>
+      <Informations />
 
       <h3 className="text-xl font-semibold text-gray-800 mb-4">Messages:</h3>
-
       {messages.length === 0 ? (
         <p className="text-center text-gray-500">No messages available.</p>
       ) : (
