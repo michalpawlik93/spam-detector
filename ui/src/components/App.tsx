@@ -1,9 +1,9 @@
-import "../assets/App.css";
 import "@livechat/design-system/dist/design-system.css";
 import { Loader } from "@livechat/design-system";
 import { useAuthorization } from "../hooks/useAuthorization";
 import useWebSocket from "../hooks/useWebSocket";
 import MessageList from "./MessageList";
+import "../assets/index.css";
 
 const AppWithAuth = () => {
   const { accessToken } = useAuthorization({
@@ -19,20 +19,20 @@ const AppWithAuth = () => {
   }
 
   return (
-    <div>
+    <div className="p-4">
       {!isServerAvailable ? (
-        <div style={{ color: "red", marginBottom: "10px" }}>
-          Server is unavailable. Reconnecting...
+        <div className="flex justify-center items-center h-screen bg-orange-100 text-orange-800 font-semibold p-6 rounded-lg border-2 border-orange-300 shadow-xl">
+          <div className="text-center">
+            <h2 className="text-2xl mb-2">Server is unavailable</h2>
+            <p className="text-sm">Reconnecting...</p>
+          </div>
         </div>
       ) : (
-        <>
-          <h1>Hello there!</h1>
-          <MessageList
-            messages={messages}
-            socket={socket}
-            spamCounters={spamCounters}
-          />
-        </>
+        <MessageList
+          messages={messages}
+          socket={socket}
+          spamCounters={spamCounters}
+        />
       )}
     </div>
   );
